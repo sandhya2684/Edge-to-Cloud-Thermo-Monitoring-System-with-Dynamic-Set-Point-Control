@@ -1,0 +1,200 @@
+# Edge-to-Cloud Thermo-Humidity Monitoring & Control System
+
+[![ARM7 LPC2148](https://img.shields.io/badge/Microcontroller-NXP_LPC2148_(ARM7TDMI--S)-00599C?style=for-the-badge&logo=arm)](https://www.nxp.com)
+[![ESP8266 Wi-Fi](https://img.shields.io/badge/Wireless-ESP--01_(ESP8266)-red?style=for-the-badge&logo=wi-fi)](https://www.espressif.com)
+[![ThingSpeak IoT](https://img.shields.io/badge/Cloud-ThingSpeak_IoT-3776AB?style=for-the-badge&logo=mathworks)](https://thingspeak.com)
+[![Keil uVision](https://img.shields.io/badge/IDE-Keil_uVision4/5-107C41?style=for-the-badge)](https://www.keil.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
+An industrial-grade embedded Edge-to-Cloud IoT monitoring and threshold control system developed entirely in **C language** on the **NXP LPC2148 (ARM7TDMI-S)** microcontroller using **Vector's Advanced ARM7 Development Board**.
+
+The system continuously acquires real-time ambient temperature and humidity data using a **DHT11 sensor**, displays formatted dual-telemetry on a **16x2 LCD**, enables dynamic threshold configuration for **both Temperature and Humidity setpoints** via a **4x4 Matrix Keypad** triggered by an **External Interrupt (EINT0)**, retains setpoints across power cycles in an **AT24C256 I2C EEPROM**, drives an active **Buzzer alert** when thresholds are breached, and periodically uploads live sensor telemetry to **ThingSpeak Cloud** strictly every **3 minutes using the LPC2148 Hardware RTC**.
+
+---
+
+## 🖼️ Hardware Operation & Demonstration Flow
+
+Below is the step-by-step visual demonstration of the system during bootup, network initialization, live telemetry monitoring, and cloud data transmission.
+
+### Step 1: Hardware Setup & ARM7 Development Kit
+![Vector LPC2148 ARM7 Development Kit with ESP-01 and DHT11](assets/hardware_setup.jpg)
+
+*Vector's Advanced ARM7 LPC2148 Development Board connected with ESP-01 Wi-Fi Module and DHT11 Sensor.*
+
+---
+
+### Step 2: System Boot & Initialization Sequence
+![System Boot Sequence on 16x2 LCD](assets/system_boot.jpg)
+
+*Power-on initialization displaying the system title followed by EEPROM-stored temperature and humidity setpoints.*
+
+---
+
+### Step 3: ESP-01 Wi-Fi AT Handshake Verification
+![ESP-01 Wi-Fi UART Handshake Passed](assets/wifi_at_test.jpg)
+
+*Automatic UART0 handshake with the ESP-01 Wi-Fi module establishing station mode and access point connection.*
+
+---
+
+### Step 4: Real-Time Dual-Telemetry & Setpoint Display
+![LCD Telemetry: Line 1 Temp & SP, Line 2 Humidity & SP](assets/lcd_telemetry.jpg)
+
+*Continuous live monitoring: Line 1 shows current Temperature and Setpoint (`T: 28°C SP: 49°C`), Line 2 shows Humidity and Setpoint (`H: 55% SP: 48%`).*
+
+---
+
+### Step 5: ThingSpeak Cloud Data Transmission
+![ThingSpeak Cloud Transmission Confirmation](assets/thingspeak_ok.jpg)
+
+*Hardware RTC 3-minute timer trigger executing HTTP GET telemetry upload to ThingSpeak Cloud API (`ThingSpeak OK!`).*
+
+---
+
+## ✨ Key System Features
+
+- **100% C Codebase**: Built without assembly or HTML dependencies, utilizing C startup routines (`startup_LPC2148.c`) and modular driver architecture.
+- **High-Precision Environmental Sensing**:
+  - Samples temperature (`0°C - 50°C`) and relative humidity (`20% - 90% RH`) via single-wire **DHT11 sensor** protocol.
+  - Implements **8-bit checksum verification** (`Humidity_Int + Humidity_Dec + Temp_Int + Temp_Dec == Checksum`) with hardware timeout guards.
+- **Dynamic Dual Threshold Configuration**:
+  - Pressing the push button on pin `P0.16 (EINT0)` triggers an external interrupt, pausing the main loop to launch the keypad menu.
+  - Configures **both Temperature and Humidity Setpoints** dynamically using a **4x4 Matrix Keypad** (`0-9` digits, `*` for backspace, `#` to confirm).
+- **Non-Volatile I2C EEPROM Storage**:
+  - Persists configured setpoints in an **AT24C256 I2C EEPROM** (Slave Addr `0x50`):
+    - Memory Address `0x0000`: Saved Temperature Setpoint (Default: `35°C`)
+    - Memory Address `0x0001`: Saved Humidity Setpoint (Default: `70%`)
+  - Ensures automatic recovery of user setpoints after power cycles.
+- **Hardware RTC 3-Minute Cloud Transmission**:
+  - Leverages internal **LPC2148 Hardware RTC** peripheral (`CCR`, `PREINT`, `PREFRAC`) to compute elapsed seconds.
+  - Posts data to **ThingSpeak Cloud** strictly every **180 RTC seconds (3 minutes)** to comply with API rate limits and optimize bandwidth.
+- **Robust ESP-01 Wi-Fi Driver**:
+  - Non-blocking UART0 serial interface operating at `9600 bps`.
+  - Clears stale TCP sockets (`AT+CIPCLOSE`) prior to establishing new socket connections.
+  - Multi-pattern response parser (`CONNECT`, `OK`, `ALREADY`, `CONNECTED`, `Linked`, `SEND OK`).
+- **Audible Hazard Alerting System**:
+  - Triggers active **Buzzer alert** (`P0.7`) with dual beep pulses whenever `Temperature > Temp_SP` OR `Humidity > Hum_SP`.
+
+---
+
+## ⚡ Hardware Architecture & LPC2148 Pin Mapping
+
+| Peripheral Module | Signal Name | LPC2148 Pin | Pin Function / Mode | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **DHT11 Sensor** | DATA | `P0.4` | GPIO Input/Output | Single-wire bidirectional data line |
+| **16x2 LCD Display** | D0 - D7 | `P0.8 - P0.15` | GPIO Output | 8-bit Parallel Data Bus |
+| | RS | `P0.17` | GPIO Output | Register Select (0=CMD, 1=DATA) |
+| | EN | `P0.18` | GPIO Output | Enable Strobe Signal |
+| | RW | `P0.19` | GPIO Output | Read/Write Select (GND/Write) |
+| **Buzzer** | Active High | `P0.7` | GPIO Output | Transistor-driven Piezo Buzzer |
+| **Push Button** | EINT0 | `P0.16` | `EINT0` (FUNC2) | External Interrupt 0 (Edge Triggered) |
+| **AT24C256 EEPROM** | SCL | `P0.2` | `SCL0` (FUNC1) | Hardware I2C Clock Line |
+| | SDA | `P0.3` | `SDA0` (FUNC1) | Hardware I2C Data Line |
+| **4x4 Keypad** | Rows 0-3 | `P1.16 - P1.19` | GPIO Output | Keypad Row Drive Lines |
+| | Cols 0-3 | `P1.20 - P1.23` | GPIO Input | Keypad Column Sense Lines |
+| **ESP-01 Wi-Fi** | TXD -> RX | `P0.0` | `TXD0` (FUNC1) | UART0 Transmit Line |
+| | RXD <- TX | `P0.1` | `RXD0` (FUNC1) | UART0 Receive Line |
+
+---
+
+## 📊 System Architecture & Data Flow
+
+```mermaid
+graph TD
+    A[DHT11 Sensor P0.4] -->|Single Wire Pulse| B[LPC2148 Microcontroller]
+    C[4x4 Matrix Keypad P1.16-P1.23] -->|EINT0 Trigger P0.16| B
+    B <-->|I2C SCL0/SDA0 P0.2/P0.3| D[AT24C256 EEPROM]
+    B -->|8-bit Data Bus P0.8-P0.15| E[16x2 LCD Display]
+    B -->|Active High P0.7| F[Piezo Buzzer Alert]
+    B <-->|UART0 TXD0/RXD0 P0.0/P0.1| G[ESP-01 Wi-Fi Module]
+    H[Hardware RTC Peripheral] -->|3-Minute Interval Timer| B
+    G -->|Wi-Fi Hotspot: Sandhya| I[ThingSpeak IoT Cloud]
+```
+
+---
+
+## 🌐 ThingSpeak Cloud API Configuration
+
+The system uploads channel telemetry via HTTP GET requests formatted as follows:
+
+```http
+GET /update?api_key=7JY9E3QDN7XTQ2RJ&field1=28&field2=55&field3=0 HTTP/1.1
+Host: api.thingspeak.com
+Connection: close
+```
+
+### Channel Details
+- **Channel ID**: `3421650`
+- **Write API Key**: `7JY9E3QDN7XTQ2RJ`
+- **Read API Key**: `OYWEAUD1UIQYP7O1`
+- **Field 1**: Temperature (°C)
+- **Field 2**: Relative Humidity (% RH)
+- **Field 3**: Alert Flag (`0` = Normal, `1` = Threshold Exceeded)
+
+---
+
+## 📁 Firmware Repository Structure
+
+```
+india_pro/
+├── assets/                             # Hardware operation photos
+│   ├── hardware_setup.jpg              # Vector ARM7 board overview
+│   ├── system_boot.jpg                 # LCD initialization screen
+│   ├── wifi_at_test.jpg                # ESP-01 AT test OK
+│   ├── lcd_telemetry.jpg               # Live telemetry & setpoints
+│   └── thingspeak_ok.jpg               # ThingSpeak HTTP GET upload OK
+└── vector_project/
+    └── major_Edge_cloud/
+        ├── main.c                      # System entry point & main state loop
+        ├── startup_LPC2148.c           # Pure C ARM7 system bootstrapper
+        ├── dht11.c / dht11.h           # Single-wire DHT11 sensor driver & checksum
+        ├── esp01.c / esp01.h           # ESP-01 Wi-Fi & ThingSpeak HTTP GET client
+        ├── rtc.c / rtc.h               # LPC2148 Hardware RTC timer routines
+        ├── external_interrupts_test.c  # EINT0 ISR & dynamic setpoint keypad scanner
+        ├── i2c.c / i2C.h               # Hardware I2C Master driver
+        ├── i2c_eeprom.c / i2c_eeprom.h # AT24C256 non-volatile read/write routines
+        ├── kpm.c / kpm.h               # 4x4 Matrix Keypad scanning & numeric decoder
+        ├── lcd.c / lcd.h               # 16x2 Character LCD driver (8-bit mode)
+        ├── uart0.c / uart0.h           # UART0 serial driver
+        ├── delay.c / delay.h           # Microsecond and millisecond delay utilities
+        ├── global.h                    # Shared global state variables
+        ├── defines.h                   # Bit-manipulation macros
+        ├── Edge_cloud.uvproj           # Keil uVision project file
+        └── Edge_cloud.hex              # Compiled Intel HEX firmware binary
+```
+
+---
+
+## 🛠️ Building & Flashing Guide
+
+### 1. Build using Keil uVision
+1. Launch **Keil uVision4** or **Keil uVision5**.
+2. Open project file: `vector_project/major_Edge_cloud/Edge_cloud.uvproj`.
+3. Select **Project -> Rebuild all target files** (or press `F7`).
+4. Ensure build output reports: `0 Error(s), 0 Warning(s)`. The target binary [`Edge_cloud.hex`](file:///c:/Users/HP/Downloads/india_pro/vector_project/major_Edge_cloud/Edge_cloud.hex) will be generated.
+
+### 2. Flashing via Flash Magic (ISP)
+1. Connect Vector ARM7 Development Board to PC via USB-to-UART converter.
+2. Launch **Flash Magic** and set:
+   - **Device**: LPC2148
+   - **COM Port**: Select your active COM Port (e.g. `COM3`)
+   - **Baud Rate**: `9600`
+   - **Interface**: None (ISP)
+   - **Oscillator Frequency (MHz)**: `12.0`
+3. Load binary file: `Edge_cloud.hex`.
+4. Select **Erase all Flash + Code Rd Protect**.
+5. Hold the **ISP Button** on the development board, hit **Reset**, and click **Start** in Flash Magic.
+
+---
+
+## 💻 Developer & Profile Info
+
+- **GitHub Profile**: [@sandhya2684](https://github.com/sandhya2684)
+- **Repository**: [Sandhya2684 - Edge-Cloud Thermo Monitoring](https://github.com/sandhya2684)
+- **Language Stack**: 100% C Language
+
+---
+
+## 📜 License
+
+This project is open-source and released under the **[MIT License](LICENSE)**.
