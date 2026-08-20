@@ -17,6 +17,11 @@ The system continuously acquires real-time ambient temperature and humidity data
 ## 📷 Hardware Showcase & Real-Time Operation
 
 <img width="1200" height="896" alt="thingspeak_ok" src="https://github.com/user-attachments/assets/7a1fd519-963e-41f5-89f0-9c1367e0c79d" />
+<img width="1200" height="896" alt="lcd_telemetry" src="https://github.com/user-attachments/assets/3c265986-011f-4b95-9756-f832ec15a184" />
+<img width="1200" height="896" alt="wifi_at_test" src="https://github.com/user-attachments/assets/f1cdd638-5e20-4f0d-960d-e06d7329f0e5" />
+<img width="1200" height="896" alt="system_boot" src="https://github.com/user-attachments/assets/285c94e7-b121-4832-b899-aed26df1b26c" />
+<img width="1200" height="896" alt="hardware_setup" src="https://github.com/user-attachments/assets/11b5747a-4be8-4f39-aca2-346a7c745d33" />
+
 
 
 ---
