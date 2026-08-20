@@ -16,20 +16,8 @@ The system continuously acquires real-time ambient temperature and humidity data
 
 ## 📷 Hardware Showcase & Real-Time Operation
 
-| Vector ARM7 Development Board | System Boot & Welcome Screen |
-| :---: | :---: |
-| ![Hardware Setup](assets/hardware_setup.jpg) | ![System Boot](assets/system_boot.jpg) |
-| *Vector's LPC2148 ARM7 Development Kit with ESP-01 & DHT11* | *Initialization: LCD boot sequence* |
+<img width="1200" height="896" alt="thingspeak_ok" src="https://github.com/user-attachments/assets/7a1fd519-963e-41f5-89f0-9c1367e0c79d" />
 
-| ESP-01 Wi-Fi AT Command Verification | Real-Time Telemetry & Dual Setpoints |
-| :---: | :---: |
-| ![Wi-Fi AT Test](assets/wifi_at_test.jpg) | ![LCD Telemetry](assets/lcd_telemetry.jpg) |
-| *ESP-01 UART handshake check passed* | *Line 1: Temp & SP | Line 2: Humidity & SP* |
-
-| ThingSpeak Cloud Feed Transmission |
-| :---: |
-| ![ThingSpeak Upload](assets/thingspeak_ok.jpg) |
-| *3-Minute RTC Triggered HTTP GET Feed Upload to ThingSpeak* |
 
 ---
 
