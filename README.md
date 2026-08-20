@@ -1,3 +1,5 @@
+
+
 # Edge-to-Cloud Thermo-Humidity Monitoring & Control System
 
 [![ARM7 LPC2148](https://img.shields.io/badge/Microcontroller-NXP_LPC2148_(ARM7TDMI--S)-00599C?style=for-the-badge&logo=arm)](https://www.nxp.com)
@@ -6,72 +8,51 @@
 [![Keil uVision](https://img.shields.io/badge/IDE-Keil_uVision4/5-107C41?style=for-the-badge)](https://www.keil.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-An industrial-grade embedded Edge-to-Cloud IoT monitoring and threshold control system developed entirely in **C language** on the **NXP LPC2148 (ARM7TDMI-S)** microcontroller using **Vector's Advanced ARM7 Development Board**.
+An industrial-grade embedded Edge-to-Cloud IoT monitoring and threshold control system developed on the **NXP LPC2148 (ARM7TDMI-S)** microcontroller using **Vector's Advanced ARM7 Development Board**. 
 
 The system continuously acquires real-time ambient temperature and humidity data using a **DHT11 sensor**, displays formatted dual-telemetry on a **16x2 LCD**, enables dynamic threshold configuration for **both Temperature and Humidity setpoints** via a **4x4 Matrix Keypad** triggered by an **External Interrupt (EINT0)**, retains setpoints across power cycles in an **AT24C256 I2C EEPROM**, drives an active **Buzzer alert** when thresholds are breached, and periodically uploads live sensor telemetry to **ThingSpeak Cloud** strictly every **3 minutes using the LPC2148 Hardware RTC**.
 
 ---
 
-## 🖼️ Hardware Operation & Demonstration Flow
+## 📷 Hardware Showcase & Real-Time Operation
 
-Below is the step-by-step visual demonstration of the system during bootup, network initialization, live telemetry monitoring, and cloud data transmission.
+| Vector ARM7 Development Board | System Boot & Welcome Screen |
+| :---: | :---: |
+| ![Hardware Setup](assets/hardware_setup.jpg) | ![System Boot](assets/system_boot.jpg) |
+| *Vector's LPC2148 ARM7 Development Kit with ESP-01 & DHT11* | *Initialization: LCD boot sequence* |
 
-### Step 1: Hardware Setup & ARM7 Development Kit
-![Vector LPC2148 ARM7 Development Kit with ESP-01 and DHT11](assets/hardware_setup.jpg)
+| ESP-01 Wi-Fi AT Command Verification | Real-Time Telemetry & Dual Setpoints |
+| :---: | :---: |
+| ![Wi-Fi AT Test](assets/wifi_at_test.jpg) | ![LCD Telemetry](assets/lcd_telemetry.jpg) |
+| *ESP-01 UART handshake check passed* | *Line 1: Temp & SP | Line 2: Humidity & SP* |
 
-*Vector's Advanced ARM7 LPC2148 Development Board connected with ESP-01 Wi-Fi Module and DHT11 Sensor.*
-
----
-
-### Step 2: System Boot & Initialization Sequence
-![System Boot Sequence on 16x2 LCD](assets/system_boot.jpg)
-
-*Power-on initialization displaying the system title followed by EEPROM-stored temperature and humidity setpoints.*
-
----
-
-### Step 3: ESP-01 Wi-Fi AT Handshake Verification
-![ESP-01 Wi-Fi UART Handshake Passed](assets/wifi_at_test.jpg)
-
-*Automatic UART0 handshake with the ESP-01 Wi-Fi module establishing station mode and access point connection.*
-
----
-
-### Step 4: Real-Time Dual-Telemetry & Setpoint Display
-![LCD Telemetry: Line 1 Temp & SP, Line 2 Humidity & SP](assets/lcd_telemetry.jpg)
-
-*Continuous live monitoring: Line 1 shows current Temperature and Setpoint (`T: 28°C SP: 49°C`), Line 2 shows Humidity and Setpoint (`H: 55% SP: 48%`).*
-
----
-
-### Step 5: ThingSpeak Cloud Data Transmission
-![ThingSpeak Cloud Transmission Confirmation](assets/thingspeak_ok.jpg)
-
-*Hardware RTC 3-minute timer trigger executing HTTP GET telemetry upload to ThingSpeak Cloud API (`ThingSpeak OK!`).*
+| ThingSpeak Cloud Feed Transmission |
+| :---: |
+| ![ThingSpeak Upload](assets/thingspeak_ok.jpg) |
+| *3-Minute RTC Triggered HTTP GET Feed Upload to ThingSpeak* |
 
 ---
 
 ## ✨ Key System Features
 
-- **100% C Codebase**: Built without assembly or HTML dependencies, utilizing C startup routines (`startup_LPC2148.c`) and modular driver architecture.
 - **High-Precision Environmental Sensing**:
   - Samples temperature (`0°C - 50°C`) and relative humidity (`20% - 90% RH`) via single-wire **DHT11 sensor** protocol.
-  - Implements **8-bit checksum verification** (`Humidity_Int + Humidity_Dec + Temp_Int + Temp_Dec == Checksum`) with hardware timeout guards.
+  - Implements **8-bit checksum verification** (`Humidity_Int + Humidity_Dec + Temp_Int + Temp_Dec == Checksum`) with hardware timeout guards to filter invalid noise spikes.
 - **Dynamic Dual Threshold Configuration**:
-  - Pressing the push button on pin `P0.16 (EINT0)` triggers an external interrupt, pausing the main loop to launch the keypad menu.
-  - Configures **both Temperature and Humidity Setpoints** dynamically using a **4x4 Matrix Keypad** (`0-9` digits, `*` for backspace, `#` to confirm).
+  - Pressing the interrupt push button on `P0.16 (EINT0)` instantly pauses the main loop and triggers an interactive keypad menu.
+  - Configures **both Temperature and Humidity Setpoints** dynamically using a **4x4 Matrix Keypad** (`0-9` digit input, `*` for backspace, `#` to confirm).
 - **Non-Volatile I2C EEPROM Storage**:
   - Persists configured setpoints in an **AT24C256 I2C EEPROM** (Slave Addr `0x50`):
     - Memory Address `0x0000`: Saved Temperature Setpoint (Default: `35°C`)
     - Memory Address `0x0001`: Saved Humidity Setpoint (Default: `70%`)
-  - Ensures automatic recovery of user setpoints after power cycles.
+  - Ensures automatic recovery of setpoints after power failure.
 - **Hardware RTC 3-Minute Cloud Transmission**:
-  - Leverages internal **LPC2148 Hardware RTC** peripheral (`CCR`, `PREINT`, `PREFRAC`) to compute elapsed seconds.
-  - Posts data to **ThingSpeak Cloud** strictly every **180 RTC seconds (3 minutes)** to comply with API rate limits and optimize bandwidth.
+  - Leverages internal **LPC2148 Hardware RTC** peripheral (`CCR`, `PREINT`, `PREFRAC`) to compute precise total elapsed seconds.
+  - Posts data to **ThingSpeak Cloud** strictly every **180 RTC seconds (3 minutes)**, preventing API rate limit penalties while optimizing power/bandwidth consumption.
 - **Robust ESP-01 Wi-Fi Driver**:
-  - Non-blocking UART0 serial interface operating at `9600 bps`.
-  - Clears stale TCP sockets (`AT+CIPCLOSE`) prior to establishing new socket connections.
-  - Multi-pattern response parser (`CONNECT`, `OK`, `ALREADY`, `CONNECTED`, `Linked`, `SEND OK`).
+  - Non-blocking UART0 interface operating at `9600 bps`.
+  - Performs pre-connect TCP socket cleanups (`AT+CIPCLOSE`) to avoid stale socket deadlocks.
+  - Supports multi-pattern response matching (`CONNECT`, `OK`, `ALREADY`, `CONNECTED`, `Linked`, `SEND OK`).
 - **Audible Hazard Alerting System**:
   - Triggers active **Buzzer alert** (`P0.7`) with dual beep pulses whenever `Temperature > Temp_SP` OR `Humidity > Hum_SP`.
 
@@ -79,9 +60,11 @@ Below is the step-by-step visual demonstration of the system during bootup, netw
 
 ## ⚡ Hardware Architecture & LPC2148 Pin Mapping
 
+### Complete Interfacing Schematic Table
+
 | Peripheral Module | Signal Name | LPC2148 Pin | Pin Function / Mode | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **DHT11 Sensor** | DATA | `P0.4` | GPIO Input/Output | Single-wire bidirectional data line |
+| **DHT11 Sensor** | DATA | `P0.4` | GPIO Input/Output | Single-wire bidirection data line |
 | **16x2 LCD Display** | D0 - D7 | `P0.8 - P0.15` | GPIO Output | 8-bit Parallel Data Bus |
 | | RS | `P0.17` | GPIO Output | Register Select (0=CMD, 1=DATA) |
 | | EN | `P0.18` | GPIO Output | Enable Strobe Signal |
@@ -123,7 +106,7 @@ Host: api.thingspeak.com
 Connection: close
 ```
 
-### Channel Details
+### Channel Mapping
 - **Channel ID**: `3421650`
 - **Write API Key**: `7JY9E3QDN7XTQ2RJ`
 - **Read API Key**: `OYWEAUD1UIQYP7O1`
@@ -137,28 +120,28 @@ Connection: close
 
 ```
 india_pro/
-├── assets/                             # Hardware operation photos
-│   ├── hardware_setup.jpg              # Vector ARM7 board overview
-│   ├── system_boot.jpg                 # LCD initialization screen
-│   ├── wifi_at_test.jpg                # ESP-01 AT test OK
-│   ├── lcd_telemetry.jpg               # Live telemetry & setpoints
-│   └── thingspeak_ok.jpg               # ThingSpeak HTTP GET upload OK
+├── assets/                             # Real-time hardware demonstration images
+│   ├── hardware_setup.jpg              # Board overview with peripherals
+│   ├── system_boot.jpg                 # Initialization LCD screen
+│   ├── wifi_at_test.jpg                # ESP-01 AT command verification
+│   ├── lcd_telemetry.jpg               # Live temperature/humidity LCD display
+│   └── thingspeak_ok.jpg               # ThingSpeak HTTP transmission OK
 └── vector_project/
     └── major_Edge_cloud/
-        ├── main.c                      # System entry point & main state loop
-        ├── startup_LPC2148.c           # Pure C ARM7 system bootstrapper
-        ├── dht11.c / dht11.h           # Single-wire DHT11 sensor driver & checksum
+        ├── main.c                      # Main execution loop & system state machine
+        ├── dht11.c / dht11.h           # Single-wire DHT11 sensor driver & checksum logic
         ├── esp01.c / esp01.h           # ESP-01 Wi-Fi & ThingSpeak HTTP GET client
-        ├── rtc.c / rtc.h               # LPC2148 Hardware RTC timer routines
+        ├── rtc.c / rtc.h               # LPC2148 Hardware RTC initialization & timers
         ├── external_interrupts_test.c  # EINT0 ISR & dynamic setpoint keypad scanner
         ├── i2c.c / i2C.h               # Hardware I2C Master driver
         ├── i2c_eeprom.c / i2c_eeprom.h # AT24C256 non-volatile read/write routines
-        ├── kpm.c / kpm.h               # 4x4 Matrix Keypad scanning & numeric decoder
+        ├── kpm.c / kpm.h               # 4x4 Matrix Keypad scanning & number reading
         ├── lcd.c / lcd.h               # 16x2 Character LCD driver (8-bit mode)
-        ├── uart0.c / uart0.h           # UART0 serial driver
-        ├── delay.c / delay.h           # Microsecond and millisecond delay utilities
-        ├── global.h                    # Shared global state variables
-        ├── defines.h                   # Bit-manipulation macros
+        ├── uart0.c / uart0.h           # UART0 interrupt serial handler
+        ├── delay.c / delay.h           # Microsecond and millisecond delay helpers
+        ├── global.h                    # Shared global setpoint & alert variables
+        ├── defines.h                   # Bit-manipulation macros (SETBIT, WRITEBIT)
+        ├── Startup.s                   # LPC2148 ARM assembly startup & vector table
         ├── Edge_cloud.uvproj           # Keil uVision project file
         └── Edge_cloud.hex              # Compiled Intel HEX firmware binary
 ```
@@ -191,10 +174,10 @@ india_pro/
 
 - **GitHub Profile**: [@sandhya2684](https://github.com/sandhya2684)
 - **Repository**: [Sandhya2684 - Edge-Cloud Thermo Monitoring](https://github.com/sandhya2684)
-- **Language Stack**: 100% C Language
+- **Platform**: Embedded C / NXP LPC2148 ARM7 / IoT Edge Computing
 
 ---
 
 ## 📜 License
 
-This project is open-source and released under the **[MIT License](LICENSE)**.
+This project is open-source and released under the **[MIT License](LICENSE)**. Feel free to use, modify, and distribute it for academic or industrial embedded projects.
