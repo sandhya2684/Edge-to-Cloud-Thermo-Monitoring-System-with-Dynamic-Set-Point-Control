@@ -170,7 +170,3 @@ india_pro/
 - **Platform**: Embedded C / NXP LPC2148 ARM7 / IoT Edge Computing
 
 ---
-
-## 📜 License
-
-This project is open-source and released under the **[MIT License](LICENSE)**. Feel free to use, modify, and distribute it for academic or industrial embedded projects.
