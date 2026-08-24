@@ -15,35 +15,41 @@ An end-to-end embedded Edge-to-Cloud IoT monitoring system built entirely in **C
 Below is the step-by-step visual demonstration of the system during bootup, network initialization, live telemetry monitoring, dynamic setpoint configuration, and cloud data transmission.
 
 ### Step 1: System Boot & Initialization Sequence
-![Step 1: System Boot Sequence](assets/image1_system_boot.jpg)
+![Step 1: System Boot Sequence]<img width="1024" height="768" alt="image1_system_boot" src="https://github.com/user-attachments/assets/716bb250-9d92-49fd-a658-b1b96edc4d74" />
+
 
 *Power-on boot sequence on 16x2 LCD displaying system title: `Edge-Cloud Therm / Monitoring Sys`.*
 
 ---
 
 ### Step 2: ESP-01 Wi-Fi & Cloud Socket Connection
-![Step 2: Connecting Cloud](assets/image2_connecting_cloud.jpg)
+![Step 2: Connecting Cloud]<img width="1024" height="768" alt="image2_connecting_cloud" src="https://github.com/user-attachments/assets/db824477-c02b-4deb-bfdf-1e860e2ee083" />
+
 
 *Establishing TCP socket connection to ThingSpeak server via ESP-01 Wi-Fi module: `Connecting Cloud`.*
 
 ---
 
 ### Step 3: Real-Time Dual-Telemetry & Setpoint Display
-![Step 3: Live LCD Telemetry](assets/image3_lcd_telemetry.jpg)
+![Step 3: Live LCD Telemetry]<img width="1024" height="768" alt="image3_lcd_telemetry" src="https://github.com/user-attachments/assets/411dffac-5b20-428c-a54f-e775e6c922db" />
+
 
 *Continuous live sensing telemetry: Line 1 (`T: 28°C SP: 49°C`), Line 2 (`H: 55% SP: 99%`).*
 
 ---
 
 ### Step 4: Dynamic Threshold Configuration via Keypad (EINT0)
-![Step 4: Dynamic Setpoint Entry](assets/image4_setpoint_entry.jpg)
+![Step 4: Dynamic Setpoint Entry]<img width="1024" height="768" alt="image4_setpoint_entry" src="https://github.com/user-attachments/assets/c464449a-13b2-4f5e-8990-1f81b5b4b7d1" />
+
 
 *Interactive 4x4 matrix keypad menu triggered by EINT0 push button interrupt: `Set Hum SP (%): 99`.*
 
 ---
 
 ### Step 5: ThingSpeak Cloud Data Transmission
-![Step 5: ThingSpeak Upload Confirmation](assets/image5_thingspeak_ok.jpg)
+![Step 5: ThingSpeak Upload Confirmation]<img width="1024" height="768" alt="image5_thingspeak_ok" src="https://github.com/user-attachments/assets/a625e282-f0bc-470a-8627-241051f88e7f" />
+
+
 
 *Hardware RTC 3-minute interval trigger executing HTTP GET feed upload to ThingSpeak Cloud API: `ThingSpeak OK! T:28°C H:55 RH`.*
 
