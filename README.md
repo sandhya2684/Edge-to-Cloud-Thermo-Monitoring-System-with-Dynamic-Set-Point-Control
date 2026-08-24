@@ -16,13 +16,20 @@ The system continuously acquires real-time ambient temperature and humidity data
 
 ## 📷 Hardware Showcase & Real-Time Operation
 
-<img width="1200" height="896" alt="thingspeak_ok" src="https://github.com/user-attachments/assets/7a1fd519-963e-41f5-89f0-9c1367e0c79d" />
-<img width="1200" height="896" alt="lcd_telemetry" src="https://github.com/user-attachments/assets/3c265986-011f-4b95-9756-f832ec15a184" />
-<img width="1200" height="896" alt="wifi_at_test" src="https://github.com/user-attachments/assets/f1cdd638-5e20-4f0d-960d-e06d7329f0e5" />
-<img width="1200" height="896" alt="system_boot" src="https://github.com/user-attachments/assets/285c94e7-b121-4832-b899-aed26df1b26c" />
-<img width="1200" height="896" alt="hardware_setup" src="https://github.com/user-attachments/assets/11b5747a-4be8-4f39-aca2-346a7c745d33" />
+| Vector ARM7 Development Board | System Boot & Welcome Screen |
+| :---: | :---: |
+| ![System Boot](assets/system_boot.jpg) | ![Wi-Fi AT Test](assets/wifi_at_test.jpg) |
+| *Vector's LPC2148 ARM7 Development Kit with ESP-01 & DHT11* | *Initialization: LCD boot sequence* |
 
+| ESP-01 Wi-Fi AT Command Verification | Real-Time Telemetry & Dual Setpoints |
+| :---: | :---: |
+| ![LCD Telemetry](assets/lcd_telemetry.jpg) | ![Hardware Setup](assets/hardware_setup.jpg) |
+| *ESP-01 UART handshake check passed* | *Line 1: Temp & SP | Line 2: Humidity & SP* |
 
+| ThingSpeak Cloud Feed Transmission |
+| :---: |
+| ![ThingSpeak Upload](assets/thingspeak_ok.jpg) |
+| *3-Minute RTC Triggered HTTP GET Feed Upload to ThingSpeak* |
 
 ---
 
@@ -170,3 +177,7 @@ india_pro/
 - **Platform**: Embedded C / NXP LPC2148 ARM7 / IoT Edge Computing
 
 ---
+
+## 📜 License
+
+This project is open-source and released under the **[MIT License](LICENSE)**. Feel free to use, modify, and distribute it for academic or industrial embedded projects.
