@@ -9,6 +9,9 @@
 An end-to-end embedded Edge-to-Cloud IoT monitoring system built entirely in **C language** for the **NXP LPC2148 (ARM7TDMI-S)** microcontroller. The system samples ambient temperature and humidity using a **DHT11 sensor**, displays live telemetry on a **16x2 LCD** with temperature & temperature setpoint on Line 1 (`T:28°C  SP:35°C`) and relative humidity & humidity setpoint on Line 2 (`H:55%   SP:70%`), allows dynamic threshold configuration for **BOTH Temperature and Humidity Setpoints** via a **4x4 Matrix Keypad** triggered by an **External Interrupt (EINT0)**, persists thresholds in an **AT24C256 I2C EEPROM**, and periodically transmits feeds to **ThingSpeak Cloud** strictly every **3 minutes using the LPC2148 Hardware RTC** via an **ESP-01 (ESP8266) Wi-Fi module**.
 
 ---
+## 📊 Block Diagram
+
+![Edge-to-Cloud Thermo Monitoring System Block Diagram](a_clean_technical_block_diagram_infographic_on_a_w.png)
 
 ## 🖼️ Real-Time Hardware Operation & Demonstration Flow
 
