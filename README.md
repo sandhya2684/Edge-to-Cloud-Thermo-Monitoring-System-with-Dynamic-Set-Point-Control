@@ -11,7 +11,8 @@ An end-to-end embedded Edge-to-Cloud IoT monitoring system built entirely in **C
 ---
 ## 📊 Block Diagram
 
-![Edge-to-Cloud Thermo Monitoring System Block Diagram](a_clean_technical_block_diagram_infographic_on_a_w.png)
+![Edge-to-Cloud Thermo Monitoring System Block Diagram]<img width="1403" height="1121" alt="Edge-to-Cloud Thermo Monitoring System" src="https://github.com/user-attachments/assets/2a2e30a3-8cbb-4031-842c-f6fe7e5ee32a" />
+
 
 ## 🖼️ Real-Time Hardware Operation & Demonstration Flow
 
